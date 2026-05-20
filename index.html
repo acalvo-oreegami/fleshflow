@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FreshFlow — Dossier de Mission</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f7f6f3;--bg3:#efede9;
+  --border:#e8e5df;--border2:#d4d0c8;
+  --text:#1a1916;--text2:#6b6860;--text3:#9b978e;
+  --accent:#2f6b4a;--accent-bg:#eaf4ee;--accent2:#1a4a2e;
+  --blue:#1e5fa8;--blue-bg:#e8f0fb;
+  --orange:#b85c00;--orange-bg:#fdf0e3;
+  --red:#c0392b;--red-bg:#fdecea;
+  --pink:#8b2252;--pink-bg:#fbeaf4;
+  --sw:240px;--font:'DM Sans',system-ui,sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px;line-height:1.6}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;z-index:100}
+.sb-top{padding:14px 10px 8px;border-bottom:1px solid var(--border)}
+.ws{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px}
+.ws-ic{width:26px;height:26px;background:var(--accent);border-radius:5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:500;flex-shrink:0}
+.ws-n{font-size:13px;font-weight:500}
+.nav{padding:6px 6px;flex:1;overflow-y:auto}
+.nav-sec{font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;padding:10px 8px 3px}
+.ni{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:5px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .12s;user-select:none}
+.ni:hover{background:var(--bg3);color:var(--text)}
+.ni.active{background:var(--bg3);color:var(--text);font-weight:500}
+.ni-ic{width:16px;text-align:center;font-size:13px;flex-shrink:0}
+.nb{margin-left:auto;font-size:10px;background:var(--border2);color:var(--text3);padding:1px 5px;border-radius:8px}
+
+/* MAIN */
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:46px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;position:sticky;top:0;background:var(--bg);z-index:50}
+.bc{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:5px}
+.bc .sep{color:var(--text3)}
+.bc .cur{color:var(--text);font-weight:500}
+.tb-right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.btn{font-size:12px;padding:4px 11px;border-radius:5px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;font-family:var(--font);transition:all .12s;white-space:nowrap}
+.btn:hover{background:var(--bg3);color:var(--text)}
+.btn-p{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-p:hover{background:var(--accent2);color:#fff}
+
+.content{padding:40px 64px 80px;max-width:960px;width:100%}
+.pg-icon{font-size:44px;margin-bottom:6px}
+.pg-title{font-size:30px;font-weight:500;letter-spacing:-.02em;margin-bottom:3px}
+.pg-sub{font-size:14px;color:var(--text2);margin-bottom:28px}
+
+.vp{display:none}
+.vp.active{display:block}
+
+/* TAGS */
+.tag{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+.t-green{background:var(--accent-bg);color:var(--accent2)}
+.t-blue{background:var(--blue-bg);color:var(--blue)}
+.t-orange{background:var(--orange-bg);color:var(--orange)}
+.t-red{background:var(--red-bg);color:var(--red)}
+.t-pink{background:var(--pink-bg);color:var(--pink)}
+.t-gray{background:var(--bg3);color:var(--text2)}
+
+/* STATUS & PRIO badges */
+.sb{font-size:11px;padding:2px 7px;border-radius:4px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer;user-select:none;transition:opacity .12s}
+.sb:hover{opacity:.75}
+.s-todo{background:var(--bg3);color:var(--text2)}
+.s-inprogress{background:var(--blue-bg);color:var(--blue)}
+.s-blocked{background:var(--red-bg);color:var(--red)}
+.s-done{background:var(--accent-bg);color:var(--accent2)}
+.p-critique{background:var(--pink-bg);color:var(--pink)}
+.p-haute{background:var(--red-bg);color:var(--red)}
+.p-moyenne{background:var(--orange-bg);color:var(--orange)}
+.p-basse{background:var(--bg3);color:var(--text2)}
+
+/* OWNER */
+.ow{font-size:11px;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;cursor:pointer;user-select:none;transition:opacity .12s}
+.ow:hover{opacity:.75}
+.ow-thomas{background:var(--blue-bg);color:var(--blue)}
+.ow-marc{background:var(--accent-bg);color:var(--accent2)}
+.ow-clem{background:var(--orange-bg);color:var(--orange)}
+.ow-lea{background:var(--pink-bg);color:var(--pink)}
+.ow-all{background:var(--bg3);color:var(--text2)}
+
+/* SECTION */
+.sec{margin-bottom:36px}
+.sec-title{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* PROPS */
+.props{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:28px}
+.pr{display:grid;grid-template-columns:150px 1fr}
+.pr:not(:last-child) .pk,.pr:not(:last-child) .pv{border-bottom:1px solid var(--border)}
+.pk{background:var(--bg2);padding:7px 12px;font-size:12px;color:var(--text2);font-weight:500;display:flex;align-items:center;gap:5px}
+.pv{background:var(--bg);padding:7px 12px;font-size:13px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+
+/* PHASES */
+.ph-card{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px;transition:box-shadow .12s}
+.ph-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.ph-grid{display:grid;grid-template-columns:110px 1fr}
+.ph-color{padding:14px;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.ph-num{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;opacity:.65}
+.ph-name{font-size:13px;font-weight:500;line-height:1.3}
+.ph-wk{font-size:11px;opacity:.6;margin-top:1px}
+.ph-body{padding:12px 16px;border-left:1px solid var(--border);display:flex;flex-direction:column;gap:7px}
+.ph-int{font-size:12px;font-style:italic;line-height:1.5;border-left:2px solid currentColor;padding-left:9px}
+.ph-sps{display:flex;gap:5px;flex-wrap:wrap}
+.ph1 .ph-color{background:var(--blue-bg);color:var(--blue)} .ph1 .ph-int{color:var(--blue)}
+.ph2 .ph-color{background:var(--accent-bg);color:var(--accent2)} .ph2 .ph-int{color:var(--accent2)}
+.ph3 .ph-color{background:var(--orange-bg);color:var(--orange)} .ph3 .ph-int{color:var(--orange)}
+.ph4 .ph-color{background:var(--red-bg);color:var(--red)} .ph4 .ph-int{color:var(--red)}
+
+/* TASK TABLE */
+.ttable{width:100%;border-collapse:collapse;font-size:13px}
+.ttable th{font-size:11px;font-weight:500;color:var(--text3);text-align:left;padding:5px 10px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.ttable td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ttable tr:last-child td{border-bottom:none}
+.ttable tr:hover td{background:var(--bg2)}
+.tn{font-weight:500;color:var(--text);font-size:12px;line-height:1.4}
+.td{font-size:11px;color:var(--text2);margin-top:1px;line-height:1.4}
+
+/* STATUS DROPDOWN */
+.sd-wrap{position:relative;display:inline-block}
+.sd-menu{position:absolute;top:calc(100% + 4px);left:0;background:var(--bg);border:1px solid var(--border2);border-radius:7px;padding:4px;z-index:200;min-width:130px;box-shadow:0 4px 16px rgba(0,0,0,.1);display:none}
+.sd-menu.open{display:block}
+.sd-opt{font-size:12px;padding:5px 9px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .1s}
+.sd-opt:hover{background:var(--bg3)}
+
+/* KANBAN */
+.kb-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.kb-controls label{font-size:12px;color:var(--text2)}
+.kb-controls select{font-size:12px;padding:4px 9px;border-radius:5px;border:1px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer;font-family:var(--font)}
+.kb-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.kb-stat{background:var(--bg2);border-radius:7px;padding:9px 10px;text-align:center;border:1px solid var(--border)}
+.ks-n{font-size:18px;font-weight:500}
+.ks-l{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.kb-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.kb-col{background:var(--bg2);border-radius:8px;padding:10px;border:1px solid var(--border);min-height:80px}
+.kb-col-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.kb-col-name{font-size:12px;font-weight:500;color:var(--text2);display:flex;align-items:center;gap:6px}
+.kb-col-name::before{content:'';width:7px;height:7px;border-radius:50%}
+.col-todo .kb-col-name::before{background:var(--border2)}
+.col-ip .kb-col-name::before{background:var(--blue)}
+.col-bl .kb-col-name::before{background:var(--red)}
+.col-dn .kb-col-name::before{background:var(--accent)}
+.kb-cnt{font-size:11px;background:var(--border);color:var(--text2);padding:1px 6px;border-radius:8px}
+.kb-card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:9px;margin-bottom:7px;cursor:grab;transition:box-shadow .12s, opacity .15s, transform .15s;user-select:none;position:relative}
+.kb-card:last-child{margin-bottom:0}
+.kb-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.12);transform:translateY(-1px)}
+.kb-card:active{cursor:grabbing}
+.kb-card.dragging{opacity:.35;transform:scale(.97);box-shadow:none}
+.kb-card.drag-preview{position:fixed;pointer-events:none;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,.18);transform:rotate(1.5deg) scale(1.03);cursor:grabbing;transition:none;border:1.5px solid var(--border2)}
+.kb-col{background:var(--bg2);border-radius:8px;padding:10px;border:1px solid var(--border);min-height:80px;transition:background .15s, border-color .15s}
+.kb-col.drag-over{background:#f0f7ff;border-color:var(--blue);border-style:dashed}
+.kb-col.drag-over-blocked{background:#fff5f5;border-color:var(--red);border-style:dashed}
+.kb-col.drag-over-done{background:#f0faf4;border-color:var(--accent);border-style:dashed}
+.drop-indicator{height:3px;border-radius:3px;background:var(--blue);margin-bottom:7px;opacity:0;transition:opacity .1s}
+.drop-indicator.visible{opacity:1}
+.kc-t{font-size:12px;font-weight:500;line-height:1.4;margin-bottom:5px;color:var(--text)}
+.kc-m{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.kc-drag-hint{position:absolute;top:8px;right:8px;font-size:10px;color:var(--text3);opacity:0;transition:opacity .15s}
+.kb-card:hover .kc-drag-hint{opacity:1}
+.kc-sp{font-size:10px;padding:2px 5px;border-radius:3px;font-weight:500}
+.sp1c{background:var(--blue-bg);color:var(--blue)}
+.sp2c{background:var(--accent-bg);color:var(--accent2)}
+.kc-empty{font-size:11px;color:var(--text3);text-align:center;padding:20px 8px;font-style:italic;border:1.5px dashed var(--border);border-radius:6px;margin:2px}
+
+/* JALONS */
+.j-item{display:grid;grid-template-columns:82px 1fr;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px}
+.j-date{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 6px;gap:1px}
+.j-dn{font-size:16px;font-weight:500}
+.j-dl{font-size:10px;opacity:.65;letter-spacing:.04em}
+.j-body{padding:11px 14px;border-left:1px solid var(--border);display:flex;flex-direction:column;gap:5px}
+.j-title{font-size:13px;font-weight:500;line-height:1.4}
+.j-liv{font-size:12px;color:var(--text2);line-height:1.5}
+.j-why{font-size:12px;color:var(--text2);background:var(--bg2);border-radius:5px;padding:6px 9px;line-height:1.5;border-left:2px solid currentColor}
+.j1 .j-date{background:var(--blue-bg);color:var(--blue)} .j1 .j-why{color:var(--blue)}
+.j2 .j-date{background:var(--accent-bg);color:var(--accent2)} .j2 .j-why{color:var(--accent2)}
+.j3 .j-date{background:var(--orange-bg);color:var(--orange)} .j3 .j-why{color:var(--orange)}
+.j4 .j-date{background:var(--pink-bg);color:var(--pink)} .j4 .j-why{color:var(--pink)}
+.j5 .j-date{background:var(--red-bg);color:var(--red)} .j5 .j-why{color:var(--red)}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .18s}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg);border-radius:10px;width:520px;max-width:94vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18);transform:translateY(8px);transition:transform .18s}
+.modal-bg.open .modal{transform:translateY(0)}
+.modal-head{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.modal-title{font-size:15px;font-weight:500;line-height:1.4}
+.modal-close{background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3);padding:2px 5px;border-radius:4px;line-height:1;transition:background .12s;flex-shrink:0}
+.modal-close:hover{background:var(--bg3)}
+.modal-body{padding:16px 20px 20px;display:flex;flex-direction:column;gap:14px}
+.mf-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.mf-row{display:flex;gap:6px;flex-wrap:wrap}
+.mf-opt{font-size:12px;padding:4px 10px;border-radius:5px;border:1px solid var(--border2);cursor:pointer;transition:all .1s;font-family:var(--font)}
+.mf-opt:hover{background:var(--bg3)}
+.mf-opt.sel{border-color:transparent}
+.mf-desc{font-size:12px;color:var(--text2);line-height:1.5;background:var(--bg2);border-radius:6px;padding:8px 10px}
+
+/* TIMELINE */
+.tl-wrap{position:relative;padding:16px 0}
+.tl-line{position:absolute;left:56px;top:0;bottom:0;width:1.5px;background:var(--border)}
+.tl-item{display:grid;grid-template-columns:56px 14px 1fr;gap:10px;align-items:start;margin-bottom:24px}
+.tl-dt{text-align:right;font-size:11px;font-weight:500;padding-top:2px;line-height:1.2}
+.tl-dot{width:14px;height:14px;border-radius:50%;border:2.5px solid var(--bg);margin-top:2px;position:relative;z-index:1;flex-shrink:0}
+.tl-bd .tl-t{font-size:13px;font-weight:500;margin-bottom:2px}
+.tl-bd .tl-d{font-size:12px;color:var(--text2);line-height:1.4}
+.tli1 .tl-dt,.tli1 .tl-t{color:var(--blue)} .tli1 .tl-dot{background:var(--blue)}
+.tli2 .tl-dt,.tli2 .tl-t{color:var(--accent2)} .tli2 .tl-dot{background:var(--accent)}
+.tli3 .tl-dt,.tli3 .tl-t{color:var(--orange)} .tli3 .tl-dot{background:var(--orange)}
+.tli4 .tl-dt,.tli4 .tl-t{color:var(--pink)} .tli4 .tl-dot{background:var(--pink)}
+.tli5 .tl-dt,.tli5 .tl-t{color:var(--red)} .tli5 .tl-dot{background:var(--red)}
+
+/* OPTIONS */
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt-card{border:1px solid var(--border);border-radius:8px;padding:14px}
+.opt-head{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.opt-icon{font-size:16px}
+.opt-title{font-size:13px;font-weight:500}
+.opt-desc{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:var(--bg);font-size:12px;padding:8px 14px;border-radius:7px;z-index:500;opacity:0;transform:translateY(6px);transition:all .2s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:760px){
+  .sidebar{transform:translateX(-100%);transition:transform .22s}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .content{padding:28px 20px 60px}
+  .kb-board{grid-template-columns:1fr 1fr}
+  .kb-stats{grid-template-columns:1fr 1fr}
+  .opt-grid{grid-template-columns:1fr}
+  .ph-grid{grid-template-columns:90px 1fr}
+  .props{font-size:12px}
+  .pr{grid-template-columns:110px 1fr}
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sb-top">
+    <div class="ws">
+      <div class="ws-ic">FF</div>
+      <div class="ws-n">FreshFlow</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-sec">Dossier de mission</div>
+    <div class="ni active" data-sec="overview"><span class="ni-ic">📋</span>Vue d'ensemble</div>
+    <div class="ni" data-sec="phases"><span class="ni-ic">🗺️</span>Roadmap — 4 phases</div>
+    <div class="ni" data-sec="sprints"><span class="ni-ic">⚡</span>Sprints 1 &amp; 2<span class="nb" id="nav-task-count">14</span></div>
+    <div class="ni" data-sec="kanban"><span class="ni-ic">📊</span>Kanban Board<span class="nb" id="nav-blocked-count">1</span></div>
+    <div class="ni" data-sec="jalons"><span class="ni-ic">🚩</span>Jalons clés<span class="nb">5</span></div>
+    <div class="ni" data-sec="timeline"><span class="ni-ic">📅</span>Timeline</div>
+    <div class="ni" data-sec="options"><span class="ni-ic">⚙️</span>Options avancées</div>
+    <div class="nav-sec" style="margin-top:6px">Équipe</div>
+    <div class="ni"><span class="ni-ic">👤</span>Thomas <span style="font-size:10px;color:var(--text3);margin-left:2px">CDP</span></div>
+    <div class="ni"><span class="ni-ic">👤</span>Marc <span style="font-size:10px;color:var(--text3);margin-left:2px">Dev</span></div>
+    <div class="ni"><span class="ni-ic">👤</span>Clémentine <span style="font-size:10px;color:var(--text3);margin-left:2px">UX</span></div>
+    <div class="ni"><span class="ni-ic">👤</span>Léa <span style="font-size:10px;color:var(--text3);margin-left:2px">Métier</span></div>
+  </nav>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <button style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--text2);padding:4px;display:none" id="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    <div class="bc" id="bc"><span>FreshFlow</span><span class="sep">›</span><span class="cur">Vue d'ensemble</span></div>
+    <div class="tb-right">
+      <span id="topbar-summary" style="font-size:12px;color:var(--text3)"></span>
+      <button class="btn btn-p" onclick="showSec('kanban')">📊 Kanban</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div id="sec-overview" class="vp active">
+      <div class="pg-icon">🌿</div>
+      <div class="pg-title">Projet FreshFlow</div>
+      <div class="pg-sub">Dossier de Mission — Bloc 2 PBNC · École Oreegami · J+0</div>
+      <div class="props">
+        <div class="pr"><div class="pk">📅 Période</div><div class="pv">J+0 → J+120 · 16 semaines · 8 sprints</div></div>
+        <div class="pr"><div class="pk">🏢 Entreprise</div><div class="pv">GreenBasket — 25 magasins bio · 18M€ CA</div></div>
+        <div class="pr"><div class="pk">🎯 Objectif</div><div class="pv">Gaspillage 12%→&lt;7% · Ruptures 23%→&lt;5%</div></div>
+        <div class="pr"><div class="pk">💶 Budget</div><div class="pv"><span class="tag t-orange">15 000 €</span><span style="font-size:11px;color:var(--text3)">dont 8 000 € consulting Philippe</span></div></div>
+        <div class="pr"><div class="pk">⚙️ Stack</div><div class="pv"><span class="tag t-green">Airtable</span><span class="tag t-blue">Make.com</span><span class="tag t-orange">Softr</span><span class="tag t-pink">WeWeb</span><span class="tag t-gray">Claude API</span></div></div>
+        <div class="pr"><div class="pk">🔖 Statut</div><div class="pv"><span class="tag t-blue">En cours</span></div></div>
+        <div class="pr"><div class="pk">📌 Jalon critique</div><div class="pv"><span class="tag t-red">J+113 — Déploiement pilote Grenoble</span></div></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-title">Avancement en temps réel</div>
+        <div id="ov-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px"></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-title">Risques actifs</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;gap:9px;align-items:start;padding:9px 12px;border:1px solid var(--border);border-radius:7px;border-left:3px solid var(--red)">
+            <span>🔴</span><div><div style="font-size:13px;font-weight:500">Mode offline WeWeb non résolu</div><div style="font-size:12px;color:var(--text2);margin-top:1px">Décision WeWeb / FlutterFlow attendue à J+28 — impact critique app producteurs</div></div>
+          </div>
+          <div style="display:flex;gap:9px;align-items:start;padding:9px 12px;border:1px solid var(--border);border-radius:7px;border-left:3px solid var(--orange)">
+            <span>🟠</span><div><div style="font-size:13px;font-weight:500">Dépendance unique Marc / Make.com</div><div style="font-size:12px;color:var(--text2);margin-top:1px">Aucun backup sur l'architecture Make.com — shadowing IT à organiser</div></div>
+          </div>
+          <div style="display:flex;gap:9px;align-items:start;padding:9px 12px;border:1px solid var(--border);border-radius:7px;border-left:3px solid var(--orange)">
+            <span>🟠</span><div><div style="font-size:13px;font-weight:500">Engagement fragile de Léa</div><div style="font-size:12px;color:var(--text2);margin-top:1px">Session test maquettes critique à J+28 — la garder co-autrice de la solution</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-title">Accès rapide</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+          <div class="nav-card" onclick="showSec('phases')"><div style="font-size:18px;margin-bottom:5px">🗺️</div><div style="font-size:13px;font-weight:500">Roadmap</div><div style="font-size:11px;color:var(--text3)">4 phases · 8 sprints</div></div>
+          <div class="nav-card" onclick="showSec('kanban')"><div style="font-size:18px;margin-bottom:5px">📊</div><div style="font-size:13px;font-weight:500">Kanban</div><div style="font-size:11px;color:var(--text3)">14 tâches · filtrable</div></div>
+          <div class="nav-card" onclick="showSec('jalons')"><div style="font-size:18px;margin-bottom:5px">🚩</div><div style="font-size:13px;font-weight:500">Jalons</div><div style="font-size:11px;color:var(--text3)">5 jalons justifiés</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASES -->
+    <div id="sec-phases" class="vp">
+      <div class="pg-icon">🗺️</div>
+      <div class="pg-title">Roadmap — 4 phases</div>
+      <div class="pg-sub">Structure macro · Sprints de 2 semaines · J+0 → J+120</div>
+      <div class="sec">
+        <div style="display:flex;border-radius:6px;overflow:hidden;height:8px;gap:1.5px;margin-bottom:8px">
+          <div style="flex:1;background:var(--blue-bg)"></div><div style="flex:1;background:var(--blue-bg)"></div>
+          <div style="flex:1;background:var(--accent-bg)"></div><div style="flex:1;background:var(--accent-bg)"></div>
+          <div style="flex:1;background:var(--orange-bg)"></div><div style="flex:1;background:var(--orange-bg)"></div>
+          <div style="flex:1;background:var(--red-bg)"></div><div style="flex:1;background:var(--red-bg)"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:22px"><span>J+0</span><span>J+30</span><span>J+60</span><span>J+90</span><span>J+120</span></div>
+      </div>
+      <div>
+        <div class="ph-card ph1"><div class="ph-grid"><div class="ph-color"><div class="ph-num">Phase 1</div><div class="ph-name">Cadrage &amp; Fondations</div><div class="ph-wk">Sem. 1–4 · J+0→J+30</div></div><div class="ph-body"><div class="ph-int">"Aligner l'équipe, valider l'architecture et poser les bases techniques avant le premier pixel."</div><div class="ph-sps"><span class="tag t-blue">S1 · Kick-off + schema Airtable</span><span class="tag t-blue">S2 · Figma V1 + specs Make.com</span></div></div></div></div>
+        <div class="ph-card ph2"><div class="ph-grid"><div class="ph-color"><div class="ph-num">Phase 2</div><div class="ph-name">Développement Itératif</div><div class="ph-wk">Sem. 5–8 · J+30→J+60</div></div><div class="ph-body"><div class="ph-int">"Livrer les premières briques fonctionnelles et obtenir les premiers retours de Léa en conditions réelles."</div><div class="ph-sps"><span class="tag t-green">S3 · Softr V1 + 15 workflows</span><span class="tag t-green">S4 · Claude API + tests Léa</span></div></div></div></div>
+        <div class="ph-card ph3"><div class="ph-grid"><div class="ph-color"><div class="ph-num">Phase 3</div><div class="ph-name">Déploiement Pilote</div><div class="ph-wk">Sem. 9–12 · J+60→J+90</div></div><div class="ph-body"><div class="ph-int">"Connecter les deux interfaces, déployer en deux temps et former les utilisateurs pilotes."</div><div class="ph-sps"><span class="tag t-orange">S5 · WeWeb offline + gérant J+75</span><span class="tag t-orange">S6 · Formation + producteurs J+90</span></div></div></div></div>
+        <div class="ph-card ph4"><div class="ph-grid"><div class="ph-color"><div class="ph-num">Phase 4</div><div class="ph-name">Stabilisation &amp; REX</div><div class="ph-wk">Sem. 13–16 · J+90→J+120</div></div><div class="ph-body"><div class="ph-int">"Mesurer les premiers KPIs, corriger les frictions et préparer le plan de généralisation aux 25 magasins."</div><div class="ph-sps"><span class="tag t-red">S7 · Bugs + KPIs J+113</span><span class="tag t-red">S8 · REX + plan généralisation J+120</span></div></div></div></div>
+      </div>
+    </div>
+
+    <!-- SPRINTS -->
+    <div id="sec-sprints" class="vp">
+      <div class="pg-icon">⚡</div>
+      <div class="pg-title">Sprints 1 &amp; 2</div>
+      <div class="pg-sub">Cliquez sur le statut ou la priorité d'une tâche pour la modifier — synchronisé avec le Kanban</div>
+      <div id="sprint-table-container"></div>
+    </div>
+
+    <!-- KANBAN -->
+    <div id="sec-kanban" class="vp">
+      <div class="pg-icon">📊</div>
+      <div class="pg-title">Kanban Board</div>
+      <div class="pg-sub">Cliquez sur une carte pour éditer · Filtres synchronisés avec les Sprints</div>
+      <div class="kb-controls">
+        <label>Sprint :</label>
+        <select id="kb-f-sp" onchange="renderKanban()"><option value="all">Tous</option><option value="S1">Sprint 1</option><option value="S2">Sprint 2</option></select>
+        <label>Responsable :</label>
+        <select id="kb-f-ow" onchange="renderKanban()"><option value="all">Tous</option><option value="Thomas">Thomas</option><option value="Marc">Marc</option><option value="Clémentine">Clémentine</option><option value="Léa">Léa</option></select>
+        <label>Priorité :</label>
+        <select id="kb-f-pr" onchange="renderKanban()"><option value="all">Toutes</option><option value="Critique">Critique</option><option value="Haute">Haute</option></select>
+      </div>
+      <div class="kb-stats">
+        <div class="kb-stat"><div class="ks-n" id="ks-todo">0</div><div class="ks-l">À faire</div></div>
+        <div class="kb-stat"><div class="ks-n" id="ks-ip" style="color:var(--blue)">0</div><div class="ks-l">En cours</div></div>
+        <div class="kb-stat"><div class="ks-n" id="ks-bl" style="color:var(--red)">0</div><div class="ks-l">Bloqué</div></div>
+        <div class="kb-stat"><div class="ks-n" id="ks-dn" style="color:var(--accent)">0</div><div class="ks-l">Terminé</div></div>
+      </div>
+      <div class="kb-board">
+        <div class="kb-col col-todo" data-status="todo"><div class="kb-col-head"><span class="kb-col-name">À faire</span><span class="kb-cnt" id="kc-todo">0</span></div><div id="kb-todo"></div></div>
+        <div class="kb-col col-ip" data-status="inprogress"><div class="kb-col-head"><span class="kb-col-name">En cours</span><span class="kb-cnt" id="kc-ip">0</span></div><div id="kb-ip"></div></div>
+        <div class="kb-col col-bl" data-status="blocked"><div class="kb-col-head"><span class="kb-col-name">Bloqué</span><span class="kb-cnt" id="kc-bl">0</span></div><div id="kb-bl"></div></div>
+        <div class="kb-col col-dn" data-status="done"><div class="kb-col-head"><span class="kb-col-name">Terminé</span><span class="kb-cnt" id="kc-dn">0</span></div><div id="kb-dn"></div></div>
+      </div>
+    </div>
+
+    <!-- JALONS -->
+    <div id="sec-jalons" class="vp">
+      <div class="pg-icon">🚩</div>
+      <div class="pg-title">5 jalons clés</div>
+      <div class="pg-sub">Formule : J+xx — livrable atteint · Justification de l'impact sur la progression</div>
+      <div>
+        <div class="j-item j1"><div class="j-date"><div class="j-dn">J+14</div><div class="j-dl">Jalon 1</div></div><div class="j-body"><span class="tag t-blue" style="align-self:flex-start">Architecture</span><div class="j-title">Schema Airtable validé et figé par Marc</div><div class="j-liv">→ Les 6 tables (Produits, Stocks, Producteurs, Magasins, Commandes, Historique_ventes) et toutes leurs relations sont modélisées, documentées et figées.</div><div class="j-why">Fondation de toute la stack. Softr, Make.com et Claude API s'appuient tous sur Airtable : un schéma mal pensé à J+14 oblige à tout refaire à J+60. Ce jalon débloque en parallèle Clémentine et les 20 scénarios Make.com.</div></div></div>
+        <div class="j-item j2"><div class="j-date"><div class="j-dn">J+30</div><div class="j-dl">Jalon 2</div></div><div class="j-body"><span class="tag t-green" style="align-self:flex-start">UX &amp; Risques</span><div class="j-title">Prototypes Figma validés par Léa + décision offline WeWeb rendue</div><div class="j-liv">→ Les 3 écrans clés testés et approuvés. Marc a rendu son verdict sur la faisabilité du mode offline WeWeb (ou décision de bascule FlutterFlow).</div><div class="j-why">Valider l'usage réel avant 60+ heures de dev, et lever le risque technique le plus critique pendant qu'il reste 83 jours pour absorber un changement de plateforme.</div></div></div>
+        <div class="j-item j3"><div class="j-date"><div class="j-dn">J+75</div><div class="j-dl">Jalon 3</div></div><div class="j-body"><span class="tag t-orange" style="align-self:flex-start">Déploiement partiel</span><div class="j-title">Interface gérant (Softr + IA) déployée en production à Grenoble</div><div class="j-liv">→ Léa utilise le dashboard Softr en conditions réelles : stocks, alertes DLC, prédictions Claude API, commandes en 3 clics. 15 workflows Make.com actifs.</div><div class="j-why">Premier déploiement réel — de la promesse à la preuve. Retours de Léa pendant 15 jours avant le déploiement producteurs. L'IA commence à accumuler des données terrain.</div></div></div>
+        <div class="j-item j4"><div class="j-date"><div class="j-dn">J+90</div><div class="j-dl">Jalon 4</div></div><div class="j-body"><span class="tag t-pink" style="align-self:flex-start">Déploiement complet</span><div class="j-title">Interface producteurs (WeWeb PWA) déployée + Jean-Michel formé</div><div class="j-liv">→ App mobile en production, 20 workflows actifs (dont synchro commandes), producteurs pilotes formés en 1h max par Inès.</div><div class="j-why">La boucle est bouclée : gérant commande → producteur confirme → stock mis à jour. Si Jean-Michel adopte, 80% des producteurs suivront.</div></div></div>
+        <div class="j-item j5"><div class="j-date"><div class="j-dn">J+113</div><div class="j-dl">Jalon 5</div></div><div class="j-body"><span class="tag t-red" style="align-self:flex-start">COPIL Sarah</span><div class="j-title">KPIs intermédiaires mesurés et présentés à Sarah</div><div class="j-liv">→ Rapport : gain de temps (−60%, 45→15 min/j), précision IA (&gt;70%), adoption Léa (5j/7), taux de réponse producteurs (&gt;90%).</div><div class="j-why">Jalon de crédibilité devant le COMEX. La mesure du gaspillage est reportée à J+150 (2–3 mois nécessaires), mais ces indicateurs prouvent que la solution fonctionne.</div></div></div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div id="sec-timeline" class="vp">
+      <div class="pg-icon">📅</div>
+      <div class="pg-title">Organisation de la Timeline</div>
+      <div class="pg-sub">Description pour le dossier de mission — structure visuelle en 3 niveaux</div>
+      <div class="sec">
+        <div class="sec-title">Description (prête à copier dans le dossier)</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.7;color:var(--text)">
+          <p>La timeline est structurée en trois niveaux de granularité emboîtés : 4 phases de 4 semaines constituent le cadre macro, chacune découpée en 2 sprints de 2 semaines, eux-mêmes ponctués par des jalons précis à date fixe. Cette hiérarchie Phase → Sprint → Jalon permet à chaque lecteur de se repérer à son niveau : Sarah lit les phases et les jalons, l'équipe technique travaille au niveau du sprint.</p>
+          <p>Les 4 phases sont représentées par une barre de progression colorée (bleu → vert → orange → rouge) qui reflète l'intensité croissante du projet, du cadrage jusqu'à la stabilisation. Chaque phase possède une couleur sémantique unique reprise sur l'ensemble des éléments associés, ce qui permet de relier visuellement un jalon à sa phase d'appartenance sans lire les dates.</p>
+          <p>Pour maintenir la lisibilité, seuls les 5 jalons clés figurent sur la timeline principale. Le détail des tâches est présenté dans la vue Sprint Board, organisée par responsable et priorité, ce qui évite de surcharger la vue globale avec 14 éléments simultanés.</p>
+          <p>Deux ajustements reflètent la réalité du projet : le déploiement en deux temps (J+75 interface gérant / J+90 interface producteurs), décision prise en réunion de pilotage à J+45 ; et le jalon de mesure du gaspillage (J+150) hors timeline principale, annoté sur le jalon J+113 pour ne pas créer l'illusion que l'objectif business sera atteint dans les 16 semaines.</p>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-title">Visualisation chronologique</div>
+        <div class="tl-wrap">
+          <div class="tl-line"></div>
+          <div class="tl-item tli1"><div class="tl-dt">J+14<br><span style="font-size:9px;color:var(--text3);font-weight:400">Jalon 1</span></div><div class="tl-dot"></div><div class="tl-bd"><div class="tl-t">Schema Airtable validé</div><div class="tl-d">Architecture de données figée — fondation de toute la stack</div></div></div>
+          <div class="tl-item tli2"><div class="tl-dt">J+30<br><span style="font-size:9px;color:var(--text3);font-weight:400">Jalon 2</span></div><div class="tl-dot"></div><div class="tl-bd"><div class="tl-t">Figma V1 validé + décision WeWeb</div><div class="tl-d">Maquettes approuvées par Léa — risque offline levé</div></div></div>
+          <div class="tl-item tli3"><div class="tl-dt">J+75<br><span style="font-size:9px;color:var(--text3);font-weight:400">Jalon 3</span></div><div class="tl-dot"></div><div class="tl-bd"><div class="tl-t">Déploiement interface gérant</div><div class="tl-d">Dashboard Softr + IA prédictive en production à Grenoble</div></div></div>
+          <div class="tl-item tli4"><div class="tl-dt">J+90<br><span style="font-size:9px;color:var(--text3);font-weight:400">Jalon 4</span></div><div class="tl-dot"></div><div class="tl-bd"><div class="tl-t">Déploiement interface producteurs</div><div class="tl-d">WeWeb PWA + Jean-Michel formé — boucle complète active</div></div></div>
+          <div class="tl-item tli5"><div class="tl-dt">J+113<br><span style="font-size:9px;color:var(--text3);font-weight:400">Jalon 5</span></div><div class="tl-dot"></div><div class="tl-bd"><div class="tl-t">KPIs intermédiaires → COPIL Sarah</div><div class="tl-d">Gain de temps, précision IA, adoption — rapport pour le COMEX<br><span style="font-size:11px;color:var(--text3);font-style:italic">↳ Mesure gaspillage reportée à J+150</span></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTIONS -->
+    <div id="sec-options" class="vp">
+      <div class="pg-icon">⚙️</div>
+      <div class="pg-title">Options avancées</div>
+      <div class="pg-sub">4 améliorations implémentées — justifications pour le dossier de mission</div>
+      <div class="opt-grid">
+        <div class="opt-card"><div class="opt-head"><span class="opt-icon">🏷️</span><div class="opt-title">Tags de priorité</div></div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px"><span class="tag t-pink">Critique</span><span class="tag t-red">Haute</span><span class="tag t-orange">Moyenne</span><span class="tag t-gray">Basse</span></div><div class="opt-desc">4 niveaux retenus (Critique ajouté au-dessus de Haute) pour isoler les tâches qui bloquent réellement la progression. Avec Marc moins disponible à J+30, chacun sait quoi traiter en premier sans demander.</div></div>
+        <div class="opt-card"><div class="opt-head"><span class="opt-icon">🔄</span><div class="opt-title">Statuts de tâche</div></div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px"><span class="sb s-todo">○ À faire</span><span class="sb s-inprogress">● En cours</span><span class="sb s-blocked">⊘ Bloqué</span><span class="sb s-done">● Terminé</span></div><div class="opt-desc">Le statut "Bloqué" est le plus utile : il signale qu'une tâche ne peut pas avancer sans décision externe. Visible en rouge dans le Kanban, il force une résolution rapide plutôt qu'une dérive silencieuse.</div></div>
+        <div class="opt-card"><div class="opt-head"><span class="opt-icon">📊</span><div class="opt-title">Vue Kanban synchronisée</div></div><div class="opt-desc">La Timeline donne la visibilité macro mais ne répond pas à "que fait-on maintenant ?". Le Kanban est filtrable par sprint, responsable et priorité. Tout changement de statut dans le Kanban se répercute instantanément dans la vue Sprints, et vice versa.</div></div>
+        <div class="opt-card"><div class="opt-head"><span class="opt-icon">👤</span><div class="opt-title">Champ Responsable</div></div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px"><span class="ow ow-thomas">Thomas</span><span class="ow ow-marc">Marc</span><span class="ow ow-clem">Clémentine</span><span class="ow ow-lea">Léa</span></div><div class="opt-desc">Un unique responsable par tâche évite la dilution de responsabilité. Cliquable pour filtrer toutes les tâches par personne, synchronisé entre le tableau Sprint et le Kanban.</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Tâche</div>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<style>
+.nav-card{padding:12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:background .12s}
+.nav-card:hover{background:var(--bg2)}
+</style>
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE — source unique de vérité
+// ═══════════════════════════════════════════════
+const TASKS = [
+  {id:0,title:"Réunion kick-off + clarification rôles avec Philippe",desc:"Gouvernance agile vs cascade, reporting unifié vers Sarah pour éviter les messages contradictoires",sprint:"S1",status:"done",prio:"Critique",owner:"Thomas"},
+  {id:1,title:"Mise en place espace pilotage Notion",desc:"Board sprint, doc architecture, suivi budget, registre des risques — point d'entrée unique",sprint:"S1",status:"done",prio:"Haute",owner:"Thomas"},
+  {id:2,title:"Architecture Airtable — schéma 6 tables + relations",desc:"Produits, Stocks, Producteurs, Magasins, Commandes, Historique_ventes — à figer avant tout dev",sprint:"S1",status:"inprogress",prio:"Critique",owner:"Marc"},
+  {id:3,title:"Provisionnement outils & accès équipe",desc:"Airtable Pro, Make.com, Softr, WeWeb — vérifier offline WeWeb en priorité absolue",sprint:"S1",status:"inprogress",prio:"Haute",owner:"Marc"},
+  {id:4,title:"Spécification 20 scénarios Make.com + priorisation",desc:"Identifier les 5 workflows complexes (synchro commandes) dès J+7 pour anticiper le glissement",sprint:"S1",status:"inprogress",prio:"Haute",owner:"Marc"},
+  {id:5,title:"Définition des rituels d'équipe",desc:"Stand-up, démo, rétro — créneaux Marc (remote Bordeaux), Clémentine, Inès",sprint:"S1",status:"done",prio:"Haute",owner:"Thomas"},
+  {id:6,title:"1er entretien terrain avec Léa",desc:"Cartographie quotidien réel (temps, douleurs, outils) — tôt le matin 7h–8h",sprint:"S1",status:"done",prio:"Haute",owner:"Léa"},
+  {id:7,title:"Maquettes Figma V1 — Dashboard Softr gérant (3 écrans)",desc:"Vue stocks, alertes DLC, commande rapide — contrainte : 5 minutes max/jour d'utilisation",sprint:"S2",status:"inprogress",prio:"Critique",owner:"Clémentine"},
+  {id:8,title:"Maquettes Figma V1 — App WeWeb producteurs (3 écrans)",desc:"Demandes consolidées, Dispo/Indispo, surplus — aussi simple qu'un SMS",sprint:"S2",status:"todo",prio:"Haute",owner:"Clémentine"},
+  {id:9,title:"Test offline WeWeb — verdict ou décision bascule FlutterFlow",desc:"Risque critique — verdict rendu avant J+28 pour garder de la marge (2 semaines pour changer)",sprint:"S2",status:"blocked",prio:"Critique",owner:"Marc"},
+  {id:10,title:"Prototype prompt Claude API — prédiction des ventes",desc:"Historique + météo + événements locaux → suggestion de commande + niveau de confiance",sprint:"S2",status:"todo",prio:"Haute",owner:"Marc"},
+  {id:11,title:"Session test maquettes avec Léa + recueil feedbacks UX",desc:"Mesurer la compréhension en <5 min, identifier les frictions — la garder co-autrice",sprint:"S2",status:"todo",prio:"Critique",owner:"Léa"},
+  {id:12,title:"Documentation des 20 scénarios Make.com (fiche par workflow)",desc:"Déclencheur, logique, outils connectés, cas d'erreur — base de connaissance pour le backup",sprint:"S2",status:"todo",prio:"Haute",owner:"Marc"},
+  {id:13,title:"1er COPIL Sarah — roadmap + plan mesure KPIs validés",desc:"Valider les 4 phases, décision périmètre pilote (1 vs 3 magasins), présenter plan indicateurs",sprint:"S2",status:"todo",prio:"Haute",owner:"Thomas"},
+];
+
+const STATUSES = ["todo","inprogress","blocked","done"];
+const STATUS_LABEL = {todo:"○ À faire",inprogress:"● En cours",blocked:"⊘ Bloqué",done:"● Terminé"};
+const STATUS_CLASS = {todo:"s-todo",inprogress:"s-inprogress",blocked:"s-blocked",done:"s-done"};
+const PRIOS = ["Critique","Haute","Moyenne","Basse"];
+const PRIO_CLASS = {Critique:"t-pink",Haute:"t-red",Moyenne:"t-orange",Basse:"t-gray"};
+const OWNERS = ["Thomas","Marc","Clémentine","Léa"];
+const OWNER_CLASS = {Thomas:"ow-thomas",Marc:"ow-marc","Clémentine":"ow-clem","Léa":"ow-lea"};
+
+let currentModal = null;
+
+// ═══════════════════════════════════════════════
+// STATE MUTATION — toutes les vues se rebuildent
+// ═══════════════════════════════════════════════
+function setTaskProp(id, prop, val) {
+  TASKS[id][prop] = val;
+  renderAll();
+  showToast(`Tâche mise à jour : ${prop} → ${val}`);
+}
+
+function renderAll() {
+  renderSprintTable();
+  renderKanban();
+  renderOverviewStats();
+  updateNavBadges();
+  if (currentModal !== null) openModal(currentModal);
+}
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ═══════════════════════════════════════════════
+// OVERVIEW STATS
+// ═══════════════════════════════════════════════
+function renderOverviewStats() {
+  const cnt = {todo:0,inprogress:0,blocked:0,done:0};
+  TASKS.forEach(t => cnt[t.status]++);
+  const pct = Math.round(cnt.done / TASKS.length * 100);
+  document.getElementById('ov-stats').innerHTML = `
+    <div style="background:var(--bg2);border-radius:7px;padding:10px 12px;text-align:center;border:1px solid var(--border)"><div style="font-size:20px;font-weight:500">${TASKS.length}</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Tâches</div></div>
+    <div style="background:var(--bg2);border-radius:7px;padding:10px 12px;text-align:center;border:1px solid var(--border)"><div style="font-size:20px;font-weight:500;color:var(--accent)">${cnt.done}</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Terminées</div></div>
+    <div style="background:var(--bg2);border-radius:7px;padding:10px 12px;text-align:center;border:1px solid var(--border)"><div style="font-size:20px;font-weight:500;color:var(--red)">${cnt.blocked}</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Bloquées</div></div>
+    <div style="background:var(--bg2);border-radius:7px;padding:10px 12px;text-align:center;border:1px solid var(--border)"><div style="font-size:20px;font-weight:500">${pct}%</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">Avancement</div></div>
+  `;
+  document.getElementById('topbar-summary').textContent = `${cnt.done}/${TASKS.length} terminées · ${cnt.blocked} bloquée${cnt.blocked>1?'s':''}`;
+}
+
+function updateNavBadges() {
+  const blocked = TASKS.filter(t => t.status === 'blocked').length;
+  const bc = document.getElementById('nav-blocked-count');
+  if (bc) { bc.textContent = blocked; bc.style.background = blocked > 0 ? 'var(--red-bg)' : ''; bc.style.color = blocked > 0 ? 'var(--red)' : ''; }
+}
+
+// ═══════════════════════════════════════════════
+// SPRINT TABLE
+// ═══════════════════════════════════════════════
+function renderSprintTable() {
+  const sprints = ['S1','S2'];
+  const sprintMeta = {
+    S1:{label:'Sprint 1',info:'Kick-off, gouvernance & architecture',sub:'Sem. 1–2 · J+0→J+14 · Objectif : équipe alignée + Airtable validé',cls:'sp1c'},
+    S2:{label:'Sprint 2',info:'Maquettes, prototypes & spécifications Make',sub:'Sem. 3–4 · J+14→J+30 · Objectif : Figma validé + décision offline WeWeb',cls:'sp2c'}
+  };
+  let html = '';
+  sprints.forEach(sp => {
+    const meta = sprintMeta[sp];
+    const tasks = TASKS.filter(t => t.sprint === sp);
+    html += `<div class="sec">
+      <div class="sprint-header" style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--border)">
+        <span class="tag ${meta.cls}" style="font-size:11px;padding:3px 9px;border-radius:20px">${meta.label}</span>
+        <div><div style="font-size:13px;font-weight:500">${meta.info}</div><div style="font-size:11px;color:var(--text3)">${meta.sub}</div></div>
+      </div>
+      <table class="ttable">
+        <thead><tr>
+          <th style="width:42%">Tâche</th>
+          <th style="width:15%">Responsable</th>
+          <th style="width:13%">Priorité</th>
+          <th style="width:15%">Statut</th>
+          <th style="width:8%"></th>
+        </tr></thead>
+        <tbody>`;
+    tasks.forEach(t => {
+      html += `<tr>
+        <td><div class="tn">${t.title}</div><div class="td">${t.desc}</div></td>
+        <td><span class="ow ${OWNER_CLASS[t.owner]}" onclick="cycleOwner(${t.id})">${t.owner}</span></td>
+        <td><span class="tag ${PRIO_CLASS[t.prio]}" style="cursor:pointer" onclick="cyclePrio(${t.id})">${t.prio}</span></td>
+        <td><div class="sd-wrap"><span class="sb ${STATUS_CLASS[t.status]}" onclick="toggleStatusMenu(${t.id},this)">${STATUS_LABEL[t.status]}</span><div class="sd-menu" id="sm-${t.id}">${STATUSES.map(s=>`<div class="sd-opt" onclick="setStatus(${t.id},'${s}',event)"><span class="sb ${STATUS_CLASS[s]}" style="pointer-events:none">${STATUS_LABEL[s]}</span></div>`).join('')}</div></div></td>
+        <td><button class="btn" onclick="openModal(${t.id})" style="font-size:11px;padding:3px 7px">···</button></td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+  });
+  document.getElementById('sprint-table-container').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════
+// KANBAN — with full drag & drop
+// ═══════════════════════════════════════════════
+
+// Drag state
+let dragId = null;
+let dragPreview = null;
+let dragOffsetX = 0, dragOffsetY = 0;
+let dragStartX = 0, dragStartY = 0;
+let didDrag = false;
+const COL_STATUS = {todo:'todo',ip:'inprogress',bl:'blocked',dn:'done'};
+const STATUS_COL_ID = {todo:'kb-todo',inprogress:'kb-ip',blocked:'kb-bl',done:'kb-dn'};
+const COL_DRAG_CLASS = {todo:'drag-over',inprogress:'drag-over',blocked:'drag-over-blocked',done:'drag-over-done'};
+
+function renderKanban() {
+  const fs = document.getElementById('kb-f-sp')?.value || 'all';
+  const fo = document.getElementById('kb-f-ow')?.value || 'all';
+  const fp = document.getElementById('kb-f-pr')?.value || 'all';
+  const cols = {todo:[],inprogress:[],blocked:[],done:[]};
+  const cnt  = {todo:0,inprogress:0,blocked:0,done:0};
+
+  TASKS.forEach(t => {
+    if ((fs==='all'||t.sprint===fs) && (fo==='all'||t.owner===fo) && (fp==='all'||t.prio===fp)) {
+      cols[t.status].push(t);
+      cnt[t.status]++;
+    }
+  });
+
+  const map = {todo:'todo',inprogress:'ip',blocked:'bl',done:'dn'};
+  Object.keys(cols).forEach(s => {
+    const el = document.getElementById('kb-'+map[s]);
+    if (!el) return;
+    if (cols[s].length === 0) {
+      el.innerHTML = '<div class="kc-empty">Dépose une carte ici</div>';
+    } else {
+      el.innerHTML = cols[s].map(t => `
+        <div class="kb-card" data-id="${t.id}"
+          onmousedown="onCardMousedown(event,${t.id})"
+          onclick="onCardClick(event,${t.id})">
+          <span class="kc-drag-hint">⠿</span>
+          <div class="kc-t">${t.title}</div>
+          <div class="kc-m">
+            <span class="kc-sp ${t.sprint==='S1'?'sp1c':'sp2c'}">${t.sprint}</span>
+            <span class="tag ${PRIO_CLASS[t.prio]}" style="font-size:10px">${t.prio}</span>
+            <span class="ow ${OWNER_CLASS[t.owner]}" style="font-size:10px;padding:1px 6px">${t.owner}</span>
+          </div>
+        </div>`).join('');
+    }
+    const ce = document.getElementById('kc-'+map[s]);
+    if (ce) ce.textContent = cnt[s];
+    const se = document.getElementById('ks-'+map[s]);
+    if (se) se.textContent = cnt[s];
+  });
+
+  // Re-attach drop zones
+  document.querySelectorAll('.kb-col').forEach(col => {
+    col.ondragover = null; col.ondrop = null;
+  });
+}
+
+// ── Mousedown : start drag intent ──
+function onCardMousedown(e, id) {
+  if (e.button !== 0) return;
+  dragId = id;
+  didDrag = false;
+  dragStartX = e.clientX;
+  dragStartY = e.clientY;
+
+  const card = e.currentTarget;
+  const rect = card.getBoundingClientRect();
+  dragOffsetX = e.clientX - rect.left;
+  dragOffsetY = e.clientY - rect.top;
+
+  // Clone for preview
+  dragPreview = card.cloneNode(true);
+  dragPreview.className = 'kb-card drag-preview';
+  dragPreview.style.width = rect.width + 'px';
+  dragPreview.style.left = (e.clientX - dragOffsetX) + 'px';
+  dragPreview.style.top  = (e.clientY - dragOffsetY) + 'px';
+  document.body.appendChild(dragPreview);
+
+  document.addEventListener('mousemove', onDragMove);
+  document.addEventListener('mouseup',   onDragEnd);
+  e.preventDefault();
+}
+
+function onDragMove(e) {
+  if (dragId === null) return;
+
+  const dx = e.clientX - dragStartX;
+  const dy = e.clientY - dragStartY;
+  if (!didDrag && Math.sqrt(dx*dx + dy*dy) > 4) {
+    didDrag = true;
+    // Mark original card
+    const orig = document.querySelector(`.kb-card[data-id="${dragId}"]`);
+    if (orig) orig.classList.add('dragging');
+  }
+  if (!didDrag) return;
+
+  // Move preview
+  if (dragPreview) {
+    dragPreview.style.left = (e.clientX - dragOffsetX) + 'px';
+    dragPreview.style.top  = (e.clientY - dragOffsetY) + 'px';
+  }
+
+  // Highlight target column
+  document.querySelectorAll('.kb-col').forEach(col => {
+    col.classList.remove('drag-over','drag-over-blocked','drag-over-done');
+  });
+  const target = getColUnderCursor(e.clientX, e.clientY);
+  if (target) {
+    const status = target.dataset.status;
+    target.classList.add(COL_DRAG_CLASS[status] || 'drag-over');
+  }
+}
+
+function onDragEnd(e) {
+  document.removeEventListener('mousemove', onDragMove);
+  document.removeEventListener('mouseup',   onDragEnd);
+
+  // Clean preview
+  if (dragPreview) { dragPreview.remove(); dragPreview = null; }
+
+  // Clean dragging class
+  document.querySelectorAll('.kb-card.dragging').forEach(c => c.classList.remove('dragging'));
+  document.querySelectorAll('.kb-col').forEach(c => c.classList.remove('drag-over','drag-over-blocked','drag-over-done'));
+
+  if (didDrag && dragId !== null) {
+    const target = getColUnderCursor(e.clientX, e.clientY);
+    if (target) {
+      const newStatus = target.dataset.status;
+      if (TASKS[dragId].status !== newStatus) {
+        setTaskProp(dragId, 'status', newStatus);
+        showToast(`"${TASKS[dragId].title.slice(0,32)}…" déplacé vers ${STATUS_LABEL[newStatus]}`);
+      }
+    }
+  }
+
+  dragId = null;
+  didDrag = false;
+}
+
+function onCardClick(e, id) {
+  if (didDrag) { e.stopPropagation(); return; }
+  openModal(id);
+}
+
+function getColUnderCursor(x, y) {
+  // Temporarily hide preview to get element underneath
+  if (dragPreview) dragPreview.style.display = 'none';
+  const el = document.elementFromPoint(x, y);
+  if (dragPreview) dragPreview.style.display = '';
+  if (!el) return null;
+  return el.closest('.kb-col[data-status]');
+}
+
+// ═══════════════════════════════════════════════
+// INTERACTIONS
+// ═══════════════════════════════════════════════
+function toggleStatusMenu(id, el) {
+  document.querySelectorAll('.sd-menu.open').forEach(m => { if (m.id !== 'sm-'+id) m.classList.remove('open'); });
+  document.getElementById('sm-'+id)?.classList.toggle('open');
+  event.stopPropagation();
+}
+document.addEventListener('click', () => document.querySelectorAll('.sd-menu.open').forEach(m => m.classList.remove('open')));
+
+function setStatus(id, status, e) {
+  e?.stopPropagation();
+  document.querySelectorAll('.sd-menu.open').forEach(m => m.classList.remove('open'));
+  setTaskProp(id, 'status', status);
+}
+
+function cyclePrio(id) {
+  const idx = PRIOS.indexOf(TASKS[id].prio);
+  setTaskProp(id, 'prio', PRIOS[(idx+1) % PRIOS.length]);
+}
+
+function cycleOwner(id) {
+  const idx = OWNERS.indexOf(TASKS[id].owner);
+  setTaskProp(id, 'owner', OWNERS[(idx+1) % OWNERS.length]);
+}
+
+// ═══════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════
+function openModal(id) {
+  currentModal = id;
+  const t = TASKS[id];
+  document.getElementById('modal-title').textContent = t.title;
+  document.getElementById('modal-body').innerHTML = `
+    <div>
+      <div class="mf-label">Description</div>
+      <div class="mf-desc">${t.desc}</div>
+    </div>
+    <div>
+      <div class="mf-label">Sprint</div>
+      <div class="mf-row">
+        ${['S1','S2'].map(s => `<button class="mf-opt ${t.sprint===s?'sel tag '+(s==='S1'?'t-blue':'t-green'):''}" onclick="setTaskProp(${id},'sprint','${s}')">${s}</button>`).join('')}
+      </div>
+    </div>
+    <div>
+      <div class="mf-label">Statut</div>
+      <div class="mf-row">
+        ${STATUSES.map(s => `<button class="mf-opt ${t.status===s?'sel sb '+STATUS_CLASS[s]:''}" onclick="setTaskProp(${id},'status','${s}')">${STATUS_LABEL[s]}</button>`).join('')}
+      </div>
+    </div>
+    <div>
+      <div class="mf-label">Priorité</div>
+      <div class="mf-row">
+        ${PRIOS.map(p => `<button class="mf-opt ${t.prio===p?'sel tag '+PRIO_CLASS[p]:''}" onclick="setTaskProp(${id},'prio','${p}')">${p}</button>`).join('')}
+      </div>
+    </div>
+    <div>
+      <div class="mf-label">Responsable</div>
+      <div class="mf-row">
+        ${OWNERS.map(o => `<button class="mf-opt ${t.owner===o?'sel ow '+OWNER_CLASS[o]:''}" onclick="setTaskProp(${id},'owner','${o}')">${o}</button>`).join('')}
+      </div>
+    </div>
+  `;
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function closeModal(e) { if (e.target === document.getElementById('modal-bg')) closeModalDirect(); }
+function closeModalDirect() { document.getElementById('modal-bg').classList.remove('open'); currentModal = null; }
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+const SEC_NAMES = {overview:'Vue d\'ensemble',phases:'Roadmap — 4 phases',sprints:'Sprints 1 & 2',kanban:'Kanban Board',jalons:'Jalons clés',timeline:'Timeline',options:'Options avancées'};
+
+function showSec(id) {
+  document.querySelectorAll('.vp').forEach(p => p.classList.toggle('active', p.id === 'sec-'+id));
+  document.querySelectorAll('.ni[data-sec]').forEach(n => n.classList.toggle('active', n.dataset.sec === id));
+  document.getElementById('bc').innerHTML = `<span>FreshFlow</span><span class="sep">›</span><span class="cur">${SEC_NAMES[id]||id}</span>`;
+  document.getElementById('sidebar').classList.remove('open');
+  if (id === 'kanban') renderKanban();
+}
+
+document.querySelectorAll('.ni[data-sec]').forEach(n => n.addEventListener('click', () => showSec(n.dataset.sec)));
+
+// ═══════════════════════════════════════════════
+// RESPONSIVE
+// ═══════════════════════════════════════════════
+function checkMobile() {
+  const btn = document.getElementById('menu-btn');
+  if (btn) btn.style.display = window.innerWidth <= 760 ? 'block' : 'none';
+}
+window.addEventListener('resize', checkMobile);
+checkMobile();
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+renderAll();
+</script>
+</body>
+</html>
